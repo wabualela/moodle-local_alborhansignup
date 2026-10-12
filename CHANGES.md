@@ -4,6 +4,18 @@ All notable changes to local_alborhansignup.
 
 ## [Unreleased]
 
+## [1.2.2] - 2026-10-13 (2026101300)
+### Security
+- A crafted POST could choose any username through the hidden username field. The field is now a form constant and
+  the username is always derived from the e-mail address.
+### Changed
+- Logic moved from `lib.php` into the autoloaded class `\local_alborhansignup\local\form_customiser`; the `lib.php`
+  callbacks are thin wrappers. The field order is `form_customiser::FIELD_ORDER` (was `LOCAL_ALBORHANSIGNUP_ORDER`).
+- Profile-category headers are found by name, without a database query.
+- Requires Moodle 5.1 (was 5.0).
+### Added
+- PHPUnit tests and GitHub Actions CI (moodle-plugin-ci).
+
 ## [1.2.1] - 2026-09-20 (2026092000)
 ### Fixed
 - Real signups failed with `invalidusernameblank`: a QuickForm filter set in `definition()` is discarded by

@@ -24,6 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['emailaccountexists'] = 'An account already exists for this email address. Please log in, or use the forgotten-password link.';
 $string['pluginname'] = 'Alborhan signup form layout';
 $string['privacy:metadata'] = 'The Alborhan signup form layout plugin only rearranges elements of the signup form and does not store any personal data.';
-$string['emailaccountexists'] = 'An account already exists for this email address. Please log in, or use the forgotten-password link.';

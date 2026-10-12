@@ -1,14 +1,29 @@
 # local_alborhansignup
 
-Rearranges the core email self-registration form (`login/signup.php`):
+Customises the core email self-registration form (`login/signup.php`) of Alborhan Academy:
 
 - removes the collapsible profile-category headers so custom profile fields render inline with core fields;
-- moves the custom profile fields `certname` and `gender` to sit directly after the name fields (before `city`).
+- arranges the fields in the order given by `form_customiser::FIELD_ORDER`
+  (`classes/local/form_customiser.php`): names, certificate name, e-mail, password, gender, city, country;
+- hides the username field: the username is always the lower-cased e-mail address (same rule as the former
+  `auth_flex`), set server-side in the `post_signup_requests` callback; a posted username is ignored;
+- reports "account already exists" under the e-mail field, since the username field is hidden.
 
-Implemented through the supported `local_<plugin>_extend_signup_form()` callback; no core or theme files are modified.
-Edit the two constants at the top of `lib.php` to change the field list or anchor.
+Implemented through the supported `local_<plugin>_extend_signup_form()`, `local_<plugin>_validate_extend_signup_form()`
+and `local_<plugin>_post_signup_requests()` callbacks (`lib.php`); no core or theme files are modified.
 
-Since 1.1.0 the username field is hidden: the username is set server-side to the lower-cased e-mail
-address (same rule the former `auth_flex` used) in the `post_signup_requests` hook (1.2.1 fix: a
-QuickForm filter is discarded by moodleform::_process_submission()), and "account already exists"
-errors are reported under the e-mail field so the user can see them.
+## Requirements
+
+Moodle 5.1 or later.
+
+## Development
+
+- Source: <https://github.com/wabualela/moodle-local_alborhansignup>. The plugin directory of the site is a deploy target
+  only; commit here, never in the Moodle core repository.
+- CI: GitHub Actions with [moodle-plugin-ci](https://github.com/moodlehq/moodle-plugin-ci) (code style, PHPDoc,
+  PHPUnit, Behat) on every push.
+- Never run PHPUnit or Behat against a production site: they need their own database and dataroot.
+
+## License
+
+GNU GPL v3 or later.
