@@ -1,0 +1,11 @@
+# Editors and OS files.
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~
+
+# Local tooling (the plugin is built and tested inside a separate Moodle checkout).
+node_modules/
+vendor/
+.phpunit.result.cache
