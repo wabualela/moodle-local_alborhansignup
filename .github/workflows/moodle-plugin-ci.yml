@@ -127,7 +127,16 @@ jobs:
       - name: Behat features
         id: behat
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci behat --profile chrome --scss-deprecations
+        run: |
+          set -o pipefail
+          moodle-plugin-ci behat --profile chrome --scss-deprecations 2>&1 | tee "$RUNNER_TEMP/behat.log"
+
+      - name: Annotate Behat failures
+        if: ${{ failure() && steps.behat.outcome == 'failure' }}
+        run: |
+          grep -v -e '^\s*$' "$RUNNER_TEMP/behat.log" | tail -n 250 | sed -e 's/%/%25/g' -e 's/\r//g' \
+            | awk 'BEGIN { ORS = "%0A" } { print }' > "$RUNNER_TEMP/behat.annotation"
+          echo "::error title=Behat output (${{ join(matrix.*, ', ') }})::$(cat "$RUNNER_TEMP/behat.annotation")"
 
       - name: Upload Behat Faildump
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
