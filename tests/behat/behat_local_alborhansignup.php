@@ -67,6 +67,27 @@ class behat_local_alborhansignup extends behat_base {
     }
 
     /**
+     * Replace the number of a phone field, as if the user typed it into an emptied field.
+     *
+     * Typing over a value that starts with "+" is unreliable with the WebDriver clearing keys (the picker re-adds the
+     * dial code), so the number is set through the library, which fires the same "input" event as typing.
+     *
+     * @When I set the :field phone field to :number
+     * @param string $field field locator: label, id or name of the phone input
+     * @param string $number number to enter, e.g. "+966501234567"
+     */
+    public function i_set_the_phone_field_to(string $field, string $number): void {
+        $this->require_javascript();
+
+        $id = $this->find_field($field)->getAttribute('id');
+        $script = '(function(input) {' .
+            ' window.intlTelInput.getInstance(input).setNumber(' . json_encode($number) . ');' .
+            '})(document.getElementById(' . json_encode($id) . '));';
+        $this->execute_script($script);
+        $this->wait_for_pending_js();
+    }
+
+    /**
      * Check the number the phone field would submit, in E.164.
      *
      * @Then the :field phone field should contain the number :number

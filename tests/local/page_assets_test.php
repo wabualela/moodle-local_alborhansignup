@@ -73,9 +73,37 @@ final class page_assets_test extends \advanced_testcase {
         $this->assertSame('sa', $config['countryorder'][0]);
         $this->assertContains('il', $config['excludecountries']);
         $this->assertSame('en', $config['locale']);
-        $this->assertSame(get_string('PS', 'countries'), $config['countrynames']['ps']);
+        $this->assertSame(get_string('PS', 'countries'), $config['countrynames']->ps);
         // Well under the 1024-character limit of js_call_amd() arguments.
         $this->assertLessThan(1024, strlen(json_encode($config)));
+    }
+
+    /**
+     * Moodle language codes become locales Intl.DisplayNames accepts.
+     *
+     * @param string $lang
+     * @param string $expected
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('intl_locale_provider')]
+    public function test_intl_locale(string $lang, string $expected): void {
+        $this->assertSame($expected, page_assets::intl_locale($lang));
+    }
+
+    /**
+     * Data provider for test_intl_locale().
+     *
+     * @return array
+     */
+    public static function intl_locale_provider(): array {
+        return [
+            ['ar', 'ar'],
+            ['en', 'en'],
+            ['zh_tw', 'zh-TW'],
+            ['pt_br', 'pt-BR'],
+            ['en_us_k12', 'en-US'],
+            ['es_mx_kids', 'es-MX'],
+            ['de_comm', 'de'],
+        ];
     }
 
     /**

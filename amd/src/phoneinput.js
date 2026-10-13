@@ -42,6 +42,7 @@ const COUNT_PLACEHOLDER = '__COUNT__';
  * @property {string} displayed value shown by the picker right after it started
  * @property {string} country country selected by the picker right after it started
  * @property {boolean} edited whether the value changed since the last validation
+ * @property {boolean} showing whether the field shows our "invalid number" error
  */
 
 /** @type {Map<HTMLInputElement, Instance>} */
@@ -179,11 +180,39 @@ const validateOnLeave = (input, event) => {
         return;
     }
     instance.edited = false;
-    if (input.value.trim() === '' || isValid(instance.iti)) {
-        showError(input, '');
+    if (input.value.trim() === '') {
+        // Core's "required" message may be showing (it replaces ours on "change"): only remove our own error.
+        if (instance.showing && feedbackText(input) === strings.invalid) {
+            setError(input, instance, '');
+        }
+    } else if (isValid(instance.iti)) {
+        setError(input, instance, '');
     } else if (isChanged(input, instance)) {
-        showError(input, strings.invalid);
+        setError(input, instance, strings.invalid);
     }
+};
+
+/**
+ * Text of the error feedback element of the field.
+ *
+ * @param {HTMLInputElement} input
+ * @returns {string|null} null when the theme has no feedback element
+ */
+const feedbackText = (input) => {
+    const feedback = input.closest('.fitem')?.querySelector('.form-control-feedback');
+    return feedback ? feedback.textContent.trim() : null;
+};
+
+/**
+ * Show or clear our "invalid number" error and remember whether it is showing.
+ *
+ * @param {HTMLInputElement} input
+ * @param {Instance} instance
+ * @param {string} message empty to clear
+ */
+const setError = (input, instance, message) => {
+    instance.showing = message !== '';
+    showError(input, message);
 };
 
 /**
@@ -219,7 +248,7 @@ const onSubmit = (event) => {
             }
         } else {
             event.preventDefault();
-            showError(input, strings.invalid);
+            setError(input, instance, strings.invalid);
         }
     });
 };
@@ -268,6 +297,7 @@ const attach = (intlTelInput, input, config) => {
         displayed: input.value.trim(),
         country: iti.getSelectedCountry()?.iso2 ?? '',
         edited: false,
+        showing: false,
     };
     instances.set(input, instance);
     if (hadfocus) {

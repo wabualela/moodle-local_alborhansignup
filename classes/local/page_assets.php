@@ -105,10 +105,26 @@ final class page_assets {
             'initialcountry' => self::INITIAL_COUNTRY,
             'countryorder' => self::COUNTRY_ORDER,
             'excludecountries' => self::EXCLUDED_COUNTRIES,
-            // Primary language subtag only: Intl.DisplayNames rejects Moodle codes like "en_us_k12".
-            'locale' => explode('_', current_language())[0],
-            'countrynames' => self::site_country_names(),
+            'locale' => self::intl_locale(current_language()),
+            // An object, also when empty: the library ignores an array.
+            'countrynames' => (object) self::site_country_names(),
         ];
+    }
+
+    /**
+     * BCP 47 locale for Intl.DisplayNames from a Moodle language code: "zh_tw" gives "zh-TW". Extra parts of Moodle
+     * codes ("en_us_k12", "es_mx_kids") are dropped, because Intl.DisplayNames rejects them.
+     *
+     * @param string $lang Moodle language code
+     * @return string
+     */
+    public static function intl_locale(string $lang): string {
+        $parts = explode('_', $lang);
+        $locale = $parts[0];
+        if (isset($parts[1]) && preg_match('/^[a-z]{2}$/', $parts[1])) {
+            $locale .= '-' . strtoupper($parts[1]);
+        }
+        return $locale;
     }
 
     /**
