@@ -19,20 +19,35 @@ Customises the core email self-registration form (`login/signup.php`) of Alborha
 - refuses the anonymous `auth_email_signup_user` web service, which would bypass all of the above
   (self-registration happens on the website only), and RemUI's inline profile save service.
 
-Implemented through the supported `local_<plugin>_extend_signup_form()`, `local_<plugin>_validate_extend_signup_form()`,
-`local_<plugin>_post_signup_requests()` and `local_<plugin>_override_webservice_execution()` callbacks (`lib.php`);
-no core or theme files are modified.
+Implemented through supported extension points only; no core or theme files are modified:
+
+- `lib.php` callbacks: `extend_signup_form`, `validate_extend_signup_form`, `post_signup_requests`,
+  `override_webservice_execution`, `control_view_profile` and `security_checks` (thin wrappers around the classes in
+  `classes/`);
+- hooks (`db/hooks.php`): `core_user\hook\before_user_updated` (normalise `phone1`) and
+  `core\hook\output\before_http_headers` (picker and RemUI pencil assets);
+- event observer (`db/events.php`): `\core\event\user_created` (normalise `phone1`).
 
 ## Requirements
 
 Moodle 5.1 or later.
 
+## Documentation
+
+- [AGENTS.md](AGENTS.md): rules, layout and commands for developers and AI agents ([CLAUDE.md](CLAUDE.md) for Claude Code).
+- [docs/history.md](docs/history.md): how the plugin evolved, bugs found and lessons learned.
+- [docs/decisions.md](docs/decisions.md): design decisions and the alternatives rejected.
+- [docs/plans/](docs/plans/): implementation plans.
+- [docs/research/](docs/research/): technical notes on Moodle signup/`phone1`, intl-tel-input and theme_remui.
+- [docs/testing.md](docs/testing.md), [docs/deployment.md](docs/deployment.md), [docs/ai-workflow.md](docs/ai-workflow.md).
+
 ## Development
 
 - Source: <https://github.com/wabualela/moodle-local_alborhansignup>. The plugin directory of the site is a deploy target
   only; commit here, never in the Moodle core repository.
-- JavaScript: `amd/src` is built into `amd/build` with `npx grunt amd` from a Moodle 5.2 checkout (Node 22) where the
-  plugin is a real directory under `public/local/alborhansignup`; commit both.
+- JavaScript: `amd/src` is built into `amd/build` with `dev/build.sh`, which runs grunt in a separate Moodle 5.2
+  checkout (Node 22, no `config.php`): `export MOODLE_DEV=<dev-checkout>`, then `./dev/build.sh`. Commit both
+  directories. See [docs/testing.md](docs/testing.md) for `dev/check.sh` and the jsdom harness.
 - CI: GitHub Actions with [moodle-plugin-ci](https://github.com/moodlehq/moodle-plugin-ci) (code style, PHPDoc,
   PHPUnit, Behat) on every push.
 - Never run PHPUnit or Behat against a production site: they need their own database and dataroot.
