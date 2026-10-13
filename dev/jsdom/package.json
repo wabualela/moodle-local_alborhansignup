@@ -1,0 +1,16 @@
+{
+  "name": "local_alborhansignup-jsdom",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser-like checks of the local_alborhansignup phone1 country picker in jsdom (development only, not deployed).",
+  "license": "GPL-3.0-or-later",
+  "scripts": {
+    "test": "node run.js"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "jsdom": "25.0.1"
+  }
+}

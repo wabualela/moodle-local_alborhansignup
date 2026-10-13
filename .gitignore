@@ -9,3 +9,10 @@
 node_modules/
 vendor/
 .phpunit.result.cache
+
+# Local development tools (see dev/).
+dev/tools/
+dev/jsdom/node_modules/
+
+# Personal Claude Code settings (may hold local paths such as MOODLE_DEV).
+.claude/settings.local.json

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<!--
+    Hand-written, minimal stand-in for a Moodle form with a phone1 field (no production markup).
+    It keeps only what amd/src/phoneinput.js and theme_boost/form-display-errors rely on:
+    form.mform > .fitem > input + .form-control-feedback, and core's submit/cancel buttons.
+    run.js sets the stored phone1 value (the value attribute) per scenario.
+-->
+<html dir="rtl" lang="ar">
+<head>
+    <meta charset="utf-8">
+    <title>phone1 fixture</title>
+</head>
+<body>
+<!-- Printed by core before every mform (lib/formslib.php); the cancel button sets it to true. -->
+<script>var skipClientValidation = false;</script>
+<form id="mform1" class="mform" action="#" method="post" accept-charset="utf-8">
+    <div id="fitem_id_email" class="mb-3 row fitem">
+        <div class="col-md-3 col-form-label">
+            <label for="id_email">Email address</label>
+        </div>
+        <div class="col-md-9 felement" data-fieldtype="text">
+            <input type="text" class="form-control" name="email" id="id_email" value="" size="25">
+            <div class="form-control-feedback invalid-feedback" id="id_error_email"></div>
+        </div>
+    </div>
+    <div id="fitem_id_phone1" class="mb-3 row fitem">
+        <div class="col-md-3 col-form-label">
+            <label for="id_phone1">Mobile phone</label>
+        </div>
+        <div class="col-md-9 felement" data-fieldtype="text">
+            <input type="text" class="form-control text-ltr" name="phone1" id="id_phone1" value=""
+                   maxlength="30" size="25" autocomplete="tel" inputmode="tel">
+            <div class="form-control-feedback invalid-feedback" id="id_error_phone1"></div>
+        </div>
+    </div>
+    <div id="fgroup_id_buttonar" class="mb-3 row fitem femptylabel">
+        <div class="col-md-9 felement" data-fieldtype="group">
+            <input type="submit" class="btn btn-primary" name="submitbutton" id="id_submitbutton"
+                   value="Create my new account">
+            <!-- Same attributes as MoodleQuickForm_cancel (lib/form/cancel.php). -->
+            <input type="submit" class="btn btn-secondary btn-cancel" name="cancel" id="id_cancel" value="Cancel"
+                   data-skip-validation="1" data-cancel="1" onclick="skipClientValidation = true; return true;">
+        </div>
+    </div>
+</form>
+</body>
+</html>
