@@ -24,6 +24,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['checkprofileprivacy'] = 'بيانات التواصل في صفحات الملف الشخصي (theme_remui)';
+$string['checkprofileprivacy_details'] = 'يعرض ثيم RemUI رقم الهاتف والبريد الإلكتروني وغيرهما من بيانات التواصل في صفحة الملف الشخصي لكل من يطّلع عليها، متجاهلاً إعدادات حقول الهوية وعرض البريد. تجعل إضافة local_alborhansignup المستخدمين الآخرين يرون صفحة الملف الشخصي الأساسية في Moodle بدلاً من ذلك. يتطلب هذا تفعيل «إجبار المستخدمين على تسجيل الدخول لعرض الملفات الشخصية» (forceloginforprofiles)، وأن يستدعي قالب الملف الشخصي في RemUI ‏(theme/remui/layout/mypublic.php) الدالة user_can_view_profile()‎. أعد الفحص بعد كل تحديث لثيم RemUI.';
+$string['checkprofileprivacy_forcelogin'] = 'بيانات التواصل غير محمية: إعداد «إجبار المستخدمين على تسجيل الدخول لعرض الملفات الشخصية» معطّل، لذا يعرضها ثيم RemUI في كل صفحات الملفات الشخصية.';
+$string['checkprofileprivacy_layoutchanged'] = 'قد تكون بيانات التواصل غير محمية: لم يعد الملف theme/remui/layout/mypublic.php يستدعي user_can_view_profile()‎. راجع إضافة local_alborhansignup مع هذا الإصدار من RemUI.';
+$string['checkprofileprivacy_notremui'] = 'ثيم RemUI ليس ثيم الموقع.';
+$string['checkprofileprivacy_ok'] = 'يرى المستخدمون الآخرون صفحة الملف الشخصي الأساسية في Moodle، وهي تتبع إعدادات حقول الهوية وعرض البريد.';
 $string['emailaccountexists'] = 'يوجد حساب مسجّل بهذا البريد الإلكتروني من قبل. يرجى تسجيل الدخول أو استخدام رابط استعادة كلمة المرور.';
 $string['iti_clearsearch'] = 'مسح البحث';
 $string['iti_close'] = 'إغلاق';

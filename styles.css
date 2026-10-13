@@ -1,0 +1,5 @@
+/* theme_remui hides the page header on profile pages because its own profile block shows the name and picture.
+   Other users do not get that block (see classes/local/profile_privacy.php), so show the header for them. */
+body#page-user-profile:not(:has(.profile-general-info-wrapper)) #page-header {
+    display: block;
+}

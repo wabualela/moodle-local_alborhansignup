@@ -14,6 +14,8 @@ Customises the core email self-registration form (`login/signup.php`) of Alborha
   editable `phone1` field (signup, profile editing, admin user editing, enrol_apply);
 - on theme_remui profile pages, the "edit" pencil opens the core profile editing page (RemUI's inline editor writes
   the profile with a raw database update and rejects international numbers);
+- on theme_remui profile pages, other users no longer see contact details (RemUI ignores core's identity and e-mail
+  display settings); they see core's profile details instead. A security check reports whether this still works;
 - refuses the anonymous `auth_email_signup_user` web service, which would bypass all of the above
   (self-registration happens on the website only), and RemUI's inline profile save service.
 

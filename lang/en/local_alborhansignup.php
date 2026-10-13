@@ -24,6 +24,12 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+$string['checkprofileprivacy'] = 'Contact details on theme_remui profile pages';
+$string['checkprofileprivacy_details'] = 'theme_remui shows the phone number, e-mail address and other contact details on profile pages to every viewer, ignoring the identity field and e-mail display settings. local_alborhansignup makes other users see core\'s profile details instead. This needs "Force users to log in for profiles" (forceloginforprofiles) and RemUI\'s profile layout (theme/remui/layout/mypublic.php) calling user_can_view_profile(). Re-check after every RemUI upgrade.';
+$string['checkprofileprivacy_forcelogin'] = 'Contact details are not protected: "Force users to log in for profiles" is off, so theme_remui shows them on every profile page.';
+$string['checkprofileprivacy_layoutchanged'] = 'Contact details may not be protected: theme_remui/layout/mypublic.php no longer calls user_can_view_profile(). Review local_alborhansignup for this RemUI version.';
+$string['checkprofileprivacy_notremui'] = 'theme_remui is not the site theme.';
+$string['checkprofileprivacy_ok'] = 'Other users see core\'s profile details, which follow the identity field and e-mail display settings.';
 $string['emailaccountexists'] = 'An account already exists for this email address. Please log in, or use the forgotten-password link.';
 $string['iti_clearsearch'] = 'Clear search';
 $string['iti_close'] = 'Close';

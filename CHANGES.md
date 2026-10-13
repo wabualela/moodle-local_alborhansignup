@@ -21,6 +21,10 @@ All notable changes to local_alborhansignup.
   `before_http_headers` output hook; the library is only downloaded on pages that have a phone field.
 - theme_remui profile pages: the "edit" pencil opens the core profile editing page instead of RemUI's inline editor,
   and the inline editor's save service (`theme_remui_save_user_profile_settings`, a raw database update) is blocked.
+- theme_remui profile pages no longer show contact details (phone, e-mail, address, ...) to other users: a
+  `control_view_profile` callback makes RemUI's own access check fail for non-owners only, so they see core's profile
+  details, which follow the identity field and e-mail display settings. A security check (Site administration >
+  Reports > Security checks) warns if the protection stops working (forceloginforprofiles off, RemUI layout changed).
 - Behat features for the signup form and the profile editing form.
 
 ## [1.2.3] - 2026-10-13 (2026101301)

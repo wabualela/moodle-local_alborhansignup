@@ -18,7 +18,8 @@
  * Callback implementations for local_alborhansignup.
  *
  * Core calls these legacy callbacks by name (login/signup.php and the web service layer); the logic lives in
- * {@see \local_alborhansignup\local\form_customiser} and {@see \local_alborhansignup\local\webservice_guard}.
+ * {@see \local_alborhansignup\local\form_customiser}, {@see \local_alborhansignup\local\webservice_guard} and
+ * {@see \local_alborhansignup\local\profile_privacy}.
  *
  * @package    local_alborhansignup
  * @copyright  2026 Alborhan Academy
@@ -26,6 +27,7 @@
  */
 
 use local_alborhansignup\local\form_customiser;
+use local_alborhansignup\local\profile_privacy;
 use local_alborhansignup\local\webservice_guard;
 
 /**
@@ -70,4 +72,25 @@ function local_alborhansignup_post_signup_requests($user): void {
 function local_alborhansignup_override_webservice_execution($externalfunctioninfo, $params): bool {
     webservice_guard::check((string) ($externalfunctioninfo->name ?? ''));
     return false;
+}
+
+/**
+ * Profile access callback (user_can_view_profile()): hides contact details on theme_remui profile pages from other users.
+ *
+ * @param stdClass $user the profile owner
+ * @param stdClass|null $course course of the profile page, if any
+ * @param context|null $usercontext context of the profile owner
+ * @return int one of the \core\user::VIEWPROFILE_* constants
+ */
+function local_alborhansignup_control_view_profile($user, $course = null, $usercontext = null): int {
+    return profile_privacy::control_view_profile();
+}
+
+/**
+ * Security checks (Site administration > Reports > Security checks).
+ *
+ * @return \core\check\check[]
+ */
+function local_alborhansignup_security_checks(): array {
+    return [new \local_alborhansignup\check\profileprivacy()];
 }

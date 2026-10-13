@@ -60,7 +60,8 @@ Feature: Mobile phone number with a country picker
     And I should see "+971" in the ".iti__selected-dial-code" "css_element"
     And the "Mobile phone" phone field should contain the number "+971501234567"
     And I press "Create my new account"
-    And I should see "Confirm your account"
+    # With JavaScript only visible text counts; on Moodle 5.1 "Confirm your account" is only in the page title.
+    And I should see "An email should have been sent to your address at"
     And I log in as "admin"
     And I navigate to "Users > Accounts > Browse list of users" in site administration
     And I should see "+971501234567" in the "sara5@example.com" "table_row"
