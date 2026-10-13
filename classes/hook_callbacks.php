@@ -60,6 +60,11 @@ final class hook_callbacks {
      * @param before_http_headers $hook
      */
     public static function before_http_headers(before_http_headers $hook): void {
-        page_assets::add_to_page($hook->renderer->get_page());
+        try {
+            page_assets::add_to_page($hook->renderer->get_page());
+        } catch (\Throwable $e) {
+            // Never break a page for the phone picker: the plain field and the server-side validation still work.
+            debugging('local_alborhansignup: ' . $e->getMessage(), DEBUG_DEVELOPER);
+        }
     }
 }

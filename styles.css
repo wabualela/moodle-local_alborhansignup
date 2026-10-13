@@ -3,3 +3,16 @@
 body#page-user-profile:not(:has(.profile-general-info-wrapper)) #page-header {
     display: block;
 }
+
+/* Signup form (vertical layout): every input is 100% wide, so the phone picker wrapper must be too. */
+.mform.full-width-labels .felement > .iti {
+    width: 100%;
+}
+
+/* The picker wrapper is always left-to-right, with the country button on the left. On right-to-left pages the theme
+   draws the "invalid" icon on the left, under the country button: draw it on the right, as on left-to-right pages. */
+/*rtl:ignore*/
+[dir="rtl"] .iti input.iti__tel-input.is-invalid {
+    padding-right: 2.75rem;
+    background-position: right 0.625rem center;
+}

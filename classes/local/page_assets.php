@@ -40,6 +40,9 @@ final class page_assets {
     /** @var string[] Countries not offered (also hidden from the site's country list). */
     public const EXCLUDED_COUNTRIES = ['il', 'eh'];
 
+    /** @var string[] Countries whose name in the picker must match the site's country list (customised names). */
+    public const COUNTRY_NAMES_FROM_SITE = ['ps', 'sy'];
+
     /** @var string[] Strings used by the AMD module, preloaded on the page. */
     public const STRINGS = [
         'iti_clearsearch', 'iti_close', 'iti_countrylist', 'iti_nocountry', 'iti_noresults', 'iti_resultsfew',
@@ -55,7 +58,7 @@ final class page_assets {
      * @param moodle_page $page
      */
     public static function add_to_page(moodle_page $page): void {
-        if (self::is_phone_page($page->pagetype, $page->pagelayout)) {
+        if (self::is_phone_page((string) $page->pagetype, (string) $page->pagelayout)) {
             $page->requires->css(self::library_url('/css/intlTelInput.min.css'));
             $page->requires->strings_for_js(self::STRINGS, 'local_alborhansignup');
             $page->requires->js_call_amd('local_alborhansignup/phoneinput', 'init', [self::phone_config()]);
@@ -102,8 +105,26 @@ final class page_assets {
             'initialcountry' => self::INITIAL_COUNTRY,
             'countryorder' => self::COUNTRY_ORDER,
             'excludecountries' => self::EXCLUDED_COUNTRIES,
-            'locale' => str_replace('_', '-', current_language()),
+            // Primary language subtag only: Intl.DisplayNames rejects Moodle codes like "en_us_k12".
+            'locale' => explode('_', current_language())[0],
+            'countrynames' => self::site_country_names(),
         ];
+    }
+
+    /**
+     * Names of COUNTRY_NAMES_FROM_SITE in the site's country list, keyed by lower-case ISO code.
+     *
+     * @return array
+     */
+    private static function site_country_names(): array {
+        $countries = get_string_manager()->get_list_of_countries(true);
+        $names = [];
+        foreach (self::COUNTRY_NAMES_FROM_SITE as $code) {
+            if (isset($countries[strtoupper($code)])) {
+                $names[$code] = $countries[strtoupper($code)];
+            }
+        }
+        return $names;
     }
 
     /**

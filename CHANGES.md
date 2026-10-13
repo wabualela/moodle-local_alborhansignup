@@ -16,9 +16,12 @@ All notable changes to local_alborhansignup.
 - Numbers without a country code that are valid both in the selected country and in Saudi Arabia are rejected as
   ambiguous; numbers with an extension are kept as typed.
 - Country picker (intl-tel-input 29.5.4, vendored in `thirdparty/`) on every editable `phone1` field: signup, own
-  profile, admin user editing and the enrol_apply form. Saudi Arabia first, then the Gulf states; Arabic country names;
-  the number is submitted in E.164 and invalid numbers are reported in the browser. Added through the
-  `before_http_headers` output hook; the library is only downloaded on pages that have a phone field.
+  profile, admin user editing and the enrol_apply form. Saudi Arabia first, then the Gulf states; Arabic country names
+  (Palestine and Syria as in the site's country list); the dial code stays in the field so "+971…"/"00971…" can be
+  typed or pasted; the number is submitted in E.164, a value the user did not touch is submitted as stored, and
+  invalid numbers are reported once per edit (no focus trap). Added through the `before_http_headers` output hook; the
+  library is only downloaded on pages that have a phone field. Local patch: Arabic country search ignores hamza and
+  other combining marks.
 - theme_remui profile pages: the "edit" pencil opens the core profile editing page instead of RemUI's inline editor,
   and the inline editor's save service (`theme_remui_save_user_profile_settings`, a raw database update) is blocked.
 - theme_remui profile pages no longer show contact details (phone, e-mail, address, ...) to other users: a

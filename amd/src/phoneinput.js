@@ -18,7 +18,8 @@
  *
  * The vendored library is loaded only when the page has a phone1 input. On submit, a valid number is written back
  * to the input in E.164 (+966501234567), so the server receives the country the user picked; invalid numbers that
- * the user typed block the submission with a field error. The server validates and normalises again.
+ * the user typed block the submission with a field error. A value the user did not touch is submitted exactly as it
+ * was stored. The server validates and normalises again.
  *
  * @module     local_alborhansignup/phoneinput
  * @copyright  2026 Alborhan Academy
@@ -34,7 +35,16 @@ const COMPONENT = 'local_alborhansignup';
 const SELECTOR = 'form.mform input[name="phone1"]:not([type="hidden"])';
 const COUNT_PLACEHOLDER = '__COUNT__';
 
-/** @type {Map<HTMLInputElement, {iti: Object, initialvalue: string}>} */
+/**
+ * @typedef {Object} Instance
+ * @property {Object} iti intl-tel-input instance
+ * @property {string} original value of the input when the page loaded (as stored)
+ * @property {string} displayed value shown by the picker right after it started
+ * @property {string} country country selected by the picker right after it started
+ * @property {boolean} edited whether the value changed since the last validation
+ */
+
+/** @type {Map<HTMLInputElement, Instance>} */
 const instances = new Map();
 
 /** @type {Promise<Function>|null} */
@@ -146,27 +156,32 @@ const showError = (input, message) => {
 };
 
 /**
- * Whether the user changed the value since the page loaded (unchanged legacy values are never blocked).
+ * Whether the user changed the number or its country since the page loaded.
  *
  * @param {HTMLInputElement} input
- * @param {string} initialvalue
+ * @param {Instance} instance
  * @returns {boolean}
  */
-const isChanged = (input, initialvalue) => input.value.trim() !== initialvalue;
+const isChanged = (input, instance) => input.value.trim() !== instance.displayed
+    || (instance.iti.getSelectedCountry()?.iso2 ?? '') !== instance.country;
 
 /**
- * Validate one field on blur.
+ * Validate one field when the user leaves it after editing it (like core's validation on "change"). Validating on
+ * every blur would make the theme put the focus back on the field each time (form-display-errors), trapping it.
  *
  * @param {HTMLInputElement} input
+ * @param {FocusEvent} event
  */
-const validateOnBlur = (input) => {
+const validateOnLeave = (input, event) => {
     const instance = instances.get(input);
-    if (!instance || input.value.trim() === '') {
+    // Moving to the country button of the same field is not leaving it.
+    if (!instance || !instance.edited || input.closest('.iti')?.contains(event.relatedTarget)) {
         return;
     }
-    if (isValid(instance.iti)) {
+    instance.edited = false;
+    if (input.value.trim() === '' || isValid(instance.iti)) {
         showError(input, '');
-    } else if (isChanged(input, instance.initialvalue)) {
+    } else if (isChanged(input, instance)) {
         showError(input, strings.invalid);
     }
 };
@@ -183,16 +198,26 @@ const onSubmit = (event) => {
     if (window.skipClientValidation || submitter?.dataset?.skipValidation || submitter?.dataset?.cancel) {
         return;
     }
-    instances.forEach(({iti, initialvalue}, input) => {
-        if (input.form !== form || input.value.trim() === '') {
+    instances.forEach((instance, input) => {
+        if (input.form !== form) {
             return;
         }
-        if (isValid(iti)) {
+        if (!isChanged(input, instance)) {
+            // Submit what was stored, not the picker's display form of it.
             if (!event.defaultPrevented) {
-                // E.164 with ASCII digits; the server normalises digits again anyway.
-                input.value = iti.getNumber();
+                input.value = instance.original;
             }
-        } else if (isChanged(input, initialvalue)) {
+            return;
+        }
+        if (input.value.trim() === '') {
+            return;
+        }
+        if (isValid(instance.iti)) {
+            if (!event.defaultPrevented) {
+                // E.164; digits stay in the numeral set the user typed, the server converts them to ASCII.
+                input.value = instance.iti.getNumber();
+            }
+        } else {
             event.preventDefault();
             showError(input, strings.invalid);
         }
@@ -207,16 +232,38 @@ const onSubmit = (event) => {
  * @param {Object} config
  */
 const attach = (intlTelInput, input, config) => {
+    const original = input.value;
+    // The library moves the input into its wrapper, which drops the focus.
+    const hadfocus = document.activeElement === input;
     const iti = intlTelInput(input, {
         initialCountry: config.initialcountry,
         countryOrder: config.countryorder,
         excludeCountries: config.excludecountries,
-        allowedNumberTypes: ['MOBILE'],
         countryNameLocale: config.locale,
+        countryNameOverrides: config.countrynames,
         uiTranslations: strings.ui,
+        allowedNumberTypes: ['MOBILE'],
+        // Keep the dial code in the input, so "+971..." and "00971..." can be typed or pasted, as the error says.
+        separateDialCode: false,
+        strictMode: false,
     });
-    instances.set(input, {iti, initialvalue: input.value.trim()});
-    input.addEventListener('blur', () => validateOnBlur(input));
+    const instance = {
+        iti,
+        original,
+        displayed: input.value.trim(),
+        country: iti.getSelectedCountry()?.iso2 ?? '',
+        edited: false,
+    };
+    instances.set(input, instance);
+    if (hadfocus) {
+        input.focus({preventScroll: true});
+    }
+    const markEdited = () => {
+        instance.edited = true;
+    };
+    input.addEventListener('input', markEdited);
+    input.addEventListener('countrychange', markEdited);
+    input.addEventListener('blur', (event) => validateOnLeave(input, event));
 };
 
 /**
@@ -228,6 +275,7 @@ const attach = (intlTelInput, input, config) => {
  * @param {string[]} config.countryorder countries listed first
  * @param {string[]} config.excludecountries countries not offered
  * @param {string} config.locale locale for the country names
+ * @param {Object} config.countrynames country names that must match the site's country list, by ISO code
  */
 export const init = async(config) => {
     const inputs = [...document.querySelectorAll(SELECTOR)].filter((input) => !instances.has(input));

@@ -57,7 +57,6 @@ Feature: Mobile phone number with a country picker
     And I select the "ae" country in the "Mobile phone" phone field
     And I set the field "Mobile phone" to "501234567"
     Then the "class" attribute of ".iti__selected-country .iti__flag" "css_element" should contain "iti__ae"
-    And I should see "+971" in the ".iti__selected-dial-code" "css_element"
     And the "Mobile phone" phone field should contain the number "+971501234567"
     And I press "Create my new account"
     # With JavaScript only visible text counts; on Moodle 5.1 "Confirm your account" is only in the page title.
@@ -82,3 +81,12 @@ Feature: Mobile phone number with a country picker
     And I press "Create my new account"
     And a new page should not have loaded since I started watching
     And I should see "Enter a valid mobile phone number" in the "#id_error_phone1" "css_element"
+
+  @javascript
+  Scenario: A number typed with its international prefix selects the country
+    Given I visit "/login/signup.php"
+    When I set the field "Mobile phone" to "00971501234567"
+    And I take focus off "Mobile phone" "field"
+    Then the "class" attribute of ".iti__selected-country .iti__flag" "css_element" should contain "iti__ae"
+    And the "Mobile phone" phone field should contain the number "+971501234567"
+    And I should not see "Enter a valid mobile phone number"

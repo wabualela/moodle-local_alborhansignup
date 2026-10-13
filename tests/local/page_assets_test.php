@@ -73,6 +73,7 @@ final class page_assets_test extends \advanced_testcase {
         $this->assertSame('sa', $config['countryorder'][0]);
         $this->assertContains('il', $config['excludecountries']);
         $this->assertSame('en', $config['locale']);
+        $this->assertSame(get_string('PS', 'countries'), $config['countrynames']['ps']);
         // Well under the 1024-character limit of js_call_amd() arguments.
         $this->assertLessThan(1024, strlen(json_encode($config)));
     }
