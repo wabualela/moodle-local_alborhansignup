@@ -4,7 +4,9 @@ Customises the core email self-registration form (`login/signup.php`) of Alborha
 
 - removes the collapsible profile-category headers so custom profile fields render inline with core fields;
 - arranges the fields in the order given by `form_customiser::FIELD_ORDER`
-  (`classes/local/form_customiser.php`): names, certificate name, e-mail, password, gender, city, country;
+  (`classes/local/form_customiser.php`): names, certificate name, e-mail, mobile phone, password, gender, city, country;
+- collects a required mobile phone number in the core field `phone1`, validated with core's libphonenumber and stored in
+  E.164 (`+966501234567`); `phone1` is also normalised whenever a user is created or updated elsewhere;
 - hides the username field: the username is always the lower-cased e-mail address (same rule as the former
   `auth_flex`), set server-side in the `post_signup_requests` callback; a posted username is ignored;
 - reports "account already exists" under the e-mail field, since the username field is hidden;

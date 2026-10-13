@@ -4,6 +4,16 @@ All notable changes to local_alborhansignup.
 
 ## [Unreleased]
 
+## [1.3.0] - unreleased (2026101302)
+### Added
+- Required mobile phone field on the signup form, stored in the core user field `phone1` (no custom profile field).
+  Validated server-side with the libphonenumber library shipped with core (mobile numbers only; Arabic-Indic digits
+  accepted) and stored in E.164, e.g. `+966501234567`.
+- `before_user_updated` hook: a changed `phone1` is stored in E.164 when any user record is updated (profile edit,
+  admin edit). Unchanged legacy values are left alone.
+- `user_created` observer: `phone1` of accounts created outside the signup form (admin, CSV upload, web services) is
+  stored in E.164.
+
 ## [1.2.3] - 2026-10-13 (2026101301)
 ### Security
 - Block the `auth_email_signup_user` web service. It is callable anonymously through `lib/ajax/service-nologin.php`

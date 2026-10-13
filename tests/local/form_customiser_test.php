@@ -178,6 +178,66 @@ final class form_customiser_test extends \advanced_testcase {
     }
 
     /**
+     * The phone field is a required, left-to-right text field mapped to phone1.
+     */
+    public function test_add_phone_field(): void {
+        $mform = $this->create_form();
+
+        form_customiser::add_phone_field($mform);
+
+        $element = $mform->getElement('phone1');
+        $this->assertSame('text', $element->getType());
+        $this->assertSame('tel', $element->getAttribute('autocomplete'));
+        $this->assertArrayHasKey('phone1', $mform->_rules);
+        $this->assertSame(PARAM_NOTAGS, $mform->_types['phone1']);
+        $this->assertTrue($element->get_force_ltr());
+    }
+
+    /**
+     * Adding the phone field twice keeps a single element.
+     */
+    public function test_add_phone_field_once(): void {
+        $mform = $this->create_form();
+
+        form_customiser::add_phone_field($mform);
+        form_customiser::add_phone_field($mform);
+
+        $this->assertCount(1, array_filter($mform->_elements, fn($element) => $element->getName() === 'phone1'));
+    }
+
+    /**
+     * The phone number must be a valid mobile number; an empty value is left to the "required" rule.
+     *
+     * @param array $data submitted data
+     * @param bool $haserror whether a phone1 error is expected
+     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('validate_phone_provider')]
+    public function test_validate_phone(array $data, bool $haserror): void {
+        $errors = form_customiser::validate($data);
+        if ($haserror) {
+            $this->assertSame(get_string('phone1invalid', 'local_alborhansignup'), $errors['phone1'] ?? null);
+        } else {
+            $this->assertArrayNotHasKey('phone1', $errors);
+        }
+    }
+
+    /**
+     * Data provider for test_validate_phone().
+     *
+     * @return array
+     */
+    public static function validate_phone_provider(): array {
+        return [
+            'international mobile' => [['phone1' => '+966501234567'], false],
+            'national mobile' => [['phone1' => '0501234567', 'country' => 'SA'], false],
+            'empty' => [['phone1' => ''], false],
+            'missing' => [[], false],
+            'landline' => [['phone1' => '0112345678'], true],
+            'garbage' => [['phone1' => '12345'], true],
+        ];
+    }
+
+    /**
      * An existing account for the e-mail address is reported under the e-mail field.
      */
     public function test_validate(): void {
@@ -212,11 +272,25 @@ final class form_customiser_test extends \advanced_testcase {
     }
 
     /**
+     * The phone number is stored in E.164; numbers that cannot be normalised are left as they are.
+     */
+    public function test_post_signup_phone(): void {
+        $user = (object) ['email' => 'a@example.com', 'phone1' => '050 123 4567', 'country' => 'SA'];
+        form_customiser::post_signup($user);
+        $this->assertSame('+966501234567', $user->phone1);
+
+        $user = (object) ['email' => 'a@example.com', 'phone1' => 'abc'];
+        form_customiser::post_signup($user);
+        $this->assertSame('abc', $user->phone1);
+    }
+
+    /**
      * Without an e-mail address the user record is left untouched.
      */
     public function test_post_signup_without_email(): void {
         $user = (object) ['username' => 'someone'];
         form_customiser::post_signup($user);
         $this->assertSame('someone', $user->username);
+        $this->assertObjectNotHasProperty('phone1', $user);
     }
 }

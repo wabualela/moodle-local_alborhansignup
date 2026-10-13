@@ -27,7 +27,8 @@ use stdClass;
  *  - custom profile fields render inline with the core fields (no collapsible
  *    category header) and all fields follow {@see self::FIELD_ORDER};
  *  - the username field is hidden and the username is derived server-side from
- *    the e-mail address (lower-cased), exactly like the former auth_flex signup.
+ *    the e-mail address (lower-cased), exactly like the former auth_flex signup;
+ *  - a required mobile phone number is collected in the core user field phone1 and stored in E.164.
  *
  * @package    local_alborhansignup
  * @copyright  2026 Alborhan Academy
@@ -44,6 +45,7 @@ final class form_customiser {
         'profile_field_certname',
         'email',
         'email2',
+        'phone1',
         'passwordpolicyinfo',
         'password',
         'profile_field_gender',
@@ -59,6 +61,7 @@ final class form_customiser {
      */
     public static function extend(MoodleQuickForm $mform): void {
         self::remove_category_headers($mform);
+        self::add_phone_field($mform);
         self::reorder($mform, self::FIELD_ORDER);
         self::hide_username($mform);
     }
@@ -80,6 +83,30 @@ final class form_customiser {
         foreach ($headers as $name) {
             $mform->removeElement($name);
         }
+    }
+
+    /**
+     * Add the required mobile phone field, mapped to the core user field phone1.
+     *
+     * Same element type and PARAM type as core's profile form (user/editlib.php); the value is validated in
+     * {@see self::validate()} and stored in E.164 by {@see self::post_signup()}.
+     *
+     * @param MoodleQuickForm $mform
+     */
+    public static function add_phone_field(MoodleQuickForm $mform): void {
+        if ($mform->elementExists('phone1')) {
+            return;
+        }
+        // Room for a formatted number ("+966 50 123 4567"); the stored E.164 value is at most 16 characters.
+        $mform->addElement('text', 'phone1', get_string('phone1', 'local_alborhansignup'), [
+            'maxlength' => 30,
+            'size' => 25,
+            'autocomplete' => 'tel',
+            'inputmode' => 'tel',
+        ]);
+        $mform->setType('phone1', user::get_property_type('phone1'));
+        $mform->addRule('phone1', get_string('phone1required', 'local_alborhansignup'), 'required', null, 'client');
+        $mform->setForceLtr('phone1');
     }
 
     /**
@@ -133,38 +160,67 @@ final class form_customiser {
     /**
      * Extra signup validation. Called from the validate_extend_signup_form callback.
      *
+     * @param array $data submitted form data
+     * @return array element name => error message
+     */
+    public static function validate(array $data): array {
+        return self::validate_email_account($data) + self::validate_phone($data);
+    }
+
+    /**
      * Because the username element is hidden, a core "usernameexists" error would be
      * invisible to the user; report the same condition under the e-mail field instead.
      *
      * @param array $data submitted form data
      * @return array element name => error message
      */
-    public static function validate(array $data): array {
+    private static function validate_email_account(array $data): array {
         global $CFG, $DB;
 
-        $errors = [];
         // Leave missing or malformed addresses to core's own e-mail validation.
         if (empty($data['email']) || !validate_email($data['email'])) {
-            return $errors;
+            return [];
         }
         $username = self::username_from_email($data['email']);
         if ($DB->record_exists('user', ['username' => $username, 'mnethostid' => $CFG->mnet_localhost_id])) {
-            $errors['email'] = get_string('emailaccountexists', 'local_alborhansignup');
+            return ['email' => get_string('emailaccountexists', 'local_alborhansignup')];
         }
-        return $errors;
+        return [];
     }
 
     /**
-     * Post-signup step: set the username from the e-mail address before the auth plugin
-     * creates the account. Called from the post_signup_requests callback.
+     * The phone number must be a valid mobile number. An empty value is left to the "required" rule.
+     *
+     * @param array $data submitted form data
+     * @return array element name => error message
+     */
+    private static function validate_phone(array $data): array {
+        $raw = trim((string) ($data['phone1'] ?? ''));
+        if ($raw === '' || phone::is_valid_mobile($raw, $data['country'] ?? null)) {
+            return [];
+        }
+        return ['phone1' => get_string('phone1invalid', 'local_alborhansignup')];
+    }
+
+    /**
+     * Post-signup step, run after validation and before the auth plugin creates the account.
+     * Called from the post_signup_requests callback.
+     *
+     *  - the username is always derived from the e-mail address;
+     *  - the phone number is stored in E.164.
      *
      * @param stdClass $user validated signup data (modified in place)
      */
     public static function post_signup(stdClass $user): void {
-        if (empty($user->email)) {
-            return;
+        if (!empty($user->email)) {
+            $user->username = self::username_from_email($user->email);
         }
-        $user->username = self::username_from_email($user->email);
+        if (isset($user->phone1)) {
+            $e164 = phone::to_e164((string) $user->phone1, $user->country ?? null);
+            if ($e164 !== null) {
+                $user->phone1 = $e164;
+            }
+        }
     }
 
     /**

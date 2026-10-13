@@ -25,6 +25,9 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['emailaccountexists'] = 'An account already exists for this email address. Please log in, or use the forgotten-password link.';
+$string['phone1'] = 'Mobile phone';
+$string['phone1invalid'] = 'Enter a valid mobile phone number, including the country code (for example +966501234567).';
+$string['phone1required'] = 'Please enter your mobile phone number.';
 $string['pluginname'] = 'Alborhan signup form layout';
-$string['privacy:metadata'] = 'The Alborhan signup form layout plugin only rearranges elements of the signup form and does not store any personal data.';
+$string['privacy:metadata'] = 'The Alborhan signup form plugin does not store any personal data itself. The mobile phone number collected on the signup form is stored by Moodle core in the user profile (phone1).';
 $string['webservicesignupdisabled'] = 'Self-registration is only available on the signup page of the website.';

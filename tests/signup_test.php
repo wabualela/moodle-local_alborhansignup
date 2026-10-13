@@ -92,6 +92,7 @@ final class signup_test extends \advanced_testcase {
             'password' => 'Passw0rd!',
             'email' => 'New.Student@Example.com',
             'email2' => 'New.Student@Example.com',
+            'phone1' => '050 123 4567',
             'firstname' => 'New',
             'lastname' => 'Student',
             'city' => 'Riyadh',
@@ -109,7 +110,7 @@ final class signup_test extends \advanced_testcase {
 
         $names = array_map(fn($element) => (string) $element->getName(), $mform->_elements);
         $this->assertEmpty(preg_grep('/^category_\d+$/', $names));
-        $required = ['firstname', 'lastname', 'profile_field_certname', 'email', 'email2', 'password',
+        $required = ['firstname', 'lastname', 'profile_field_certname', 'email', 'email2', 'phone1', 'password',
             'profile_field_gender', 'city', 'country'];
         foreach ($required as $name) {
             $this->assertContains($name, $names);
@@ -121,7 +122,7 @@ final class signup_test extends \advanced_testcase {
 
     /**
      * A full signup creates the account with the lower-cased e-mail address as username,
-     * even when the hidden username field was tampered with.
+     * even when the hidden username field was tampered with, and the phone number in E.164.
      */
     public function test_signup_creates_account(): void {
         global $DB;
@@ -139,6 +140,7 @@ final class signup_test extends \advanced_testcase {
 
         $created = $DB->get_record('user', ['email' => 'New.Student@Example.com'], '*', MUST_EXIST);
         $this->assertSame('new.student@example.com', $created->username);
+        $this->assertSame('+966501234567', $created->phone1);
         $this->assertFalse($DB->record_exists('user', ['username' => 'support']));
         $this->assertCount(1, $sink->get_messages());
         $sink->close();
@@ -159,5 +161,28 @@ final class signup_test extends \advanced_testcase {
         $this->assertNull($form->get_data());
         $errors = $this->get_mform($form)->_errors;
         $this->assertSame(get_string('emailaccountexists', 'local_alborhansignup'), $errors['email'] ?? null);
+    }
+
+    /**
+     * The phone number is required.
+     */
+    public function test_signup_requires_phone(): void {
+        \login_signup_form::mock_submit($this->signup_data(['phone1' => '']));
+        $form = new \login_signup_form();
+
+        $this->assertNull($form->get_data());
+        $this->assertArrayHasKey('phone1', $this->get_mform($form)->_errors);
+    }
+
+    /**
+     * A phone number that is not a valid mobile number is rejected under the phone field.
+     */
+    public function test_signup_rejects_invalid_phone(): void {
+        \login_signup_form::mock_submit($this->signup_data(['phone1' => '0112345678']));
+        $form = new \login_signup_form();
+
+        $this->assertNull($form->get_data());
+        $errors = $this->get_mform($form)->_errors;
+        $this->assertSame(get_string('phone1invalid', 'local_alborhansignup'), $errors['phone1'] ?? null);
     }
 }
