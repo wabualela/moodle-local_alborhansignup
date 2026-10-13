@@ -126,7 +126,7 @@ jobs:
           split -C 3500 -d "$RUNNER_TEMP/phpunit.log.tail" "$RUNNER_TEMP/phpunit.log.part."
           for part in "$RUNNER_TEMP/phpunit.log.part."*; do
             msg=$(sed -e 's/%/%25/g' -e 's/\r//g' "$part" | awk 'BEGIN { ORS = "%0A" } { print }')
-            echo "::error title=PHPUnit output (${{ join(matrix.*, ', ') }}) $(basename "$part")::$msg"
+            echo "::error title=PHPUnit output (${{ join(matrix.*, ' ') }}) $(basename "$part")::$msg"
           done
 
       - name: Behat features
@@ -145,7 +145,7 @@ jobs:
           split -C 3500 -d "$RUNNER_TEMP/behat.log.tail" "$RUNNER_TEMP/behat.log.part."
           for part in "$RUNNER_TEMP/behat.log.part."*; do
             msg=$(sed -e 's/%/%25/g' -e 's/\r//g' "$part" | awk 'BEGIN { ORS = "%0A" } { print }')
-            echo "::error title=Behat output (${{ join(matrix.*, ', ') }}) $(basename "$part")::$msg"
+            echo "::error title=Behat output (${{ join(matrix.*, ' ') }}) $(basename "$part")::$msg"
           done
 
       - name: Upload Behat Faildump
