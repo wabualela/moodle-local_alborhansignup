@@ -25,9 +25,20 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['emailaccountexists'] = 'يوجد حساب مسجّل بهذا البريد الإلكتروني من قبل. يرجى تسجيل الدخول أو استخدام رابط استعادة كلمة المرور.';
+$string['iti_clearsearch'] = 'مسح البحث';
+$string['iti_close'] = 'إغلاق';
+$string['iti_countrylist'] = 'قائمة الدول';
+$string['iti_nocountry'] = 'اختر دولة لرقم الهاتف';
+$string['iti_noresults'] = 'لم يتم العثور على نتائج';
+$string['iti_resultsfew'] = 'تم العثور على {$a} نتائج';
+$string['iti_resultsmany'] = 'تم العثور على {$a} نتيجة';
+$string['iti_resultsone'] = 'تم العثور على نتيجة واحدة';
+$string['iti_resultstwo'] = 'تم العثور على نتيجتين';
+$string['iti_search'] = 'بحث';
+$string['iti_selectedcountry'] = 'تغيير الدولة لرقم الهاتف، المحددة ${countryName} (${dialCode})';
 $string['phone1'] = 'رقم الجوال';
 $string['phone1invalid'] = 'أدخل رقم جوال صحيحاً مع رمز الدولة، مثل ‎+966501234567.';
 $string['phone1required'] = 'يرجى إدخال رقم الجوال.';
 $string['pluginname'] = 'تنسيق استمارة التسجيل - البرهان';
 $string['privacy:metadata'] = 'إضافة استمارة التسجيل لا تخزّن أي بيانات شخصية بنفسها. رقم الجوال الذي يُجمع في استمارة التسجيل يخزّنه Moodle في الملف الشخصي للمستخدم (phone1).';
-$string['webservicesignupdisabled'] = 'إنشاء الحساب متاح من صفحة التسجيل في الموقع فقط.';
+$string['webservicesignupdisabled'] = 'هذا الإجراء غير متاح. يرجى استخدام صفحات الموقع.';

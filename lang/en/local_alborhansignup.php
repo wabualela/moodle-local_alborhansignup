@@ -25,9 +25,20 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['emailaccountexists'] = 'An account already exists for this email address. Please log in, or use the forgotten-password link.';
+$string['iti_clearsearch'] = 'Clear search';
+$string['iti_close'] = 'Close';
+$string['iti_countrylist'] = 'List of countries';
+$string['iti_nocountry'] = 'Select a country for the phone number';
+$string['iti_noresults'] = 'No results found';
+$string['iti_resultsfew'] = '{$a} results found';
+$string['iti_resultsmany'] = '{$a} results found';
+$string['iti_resultsone'] = '1 result found';
+$string['iti_resultstwo'] = '2 results found';
+$string['iti_search'] = 'Search';
+$string['iti_selectedcountry'] = 'Change the country of the phone number, selected ${countryName} (${dialCode})';
 $string['phone1'] = 'Mobile phone';
 $string['phone1invalid'] = 'Enter a valid mobile phone number, including the country code (for example +966501234567).';
 $string['phone1required'] = 'Please enter your mobile phone number.';
 $string['pluginname'] = 'Alborhan signup form layout';
 $string['privacy:metadata'] = 'The Alborhan signup form plugin does not store any personal data itself. The mobile phone number collected on the signup form is stored by Moodle core in the user profile (phone1).';
-$string['webservicesignupdisabled'] = 'Self-registration is only available on the signup page of the website.';
+$string['webservicesignupdisabled'] = 'This action is not available. Please use the pages of the website.';

@@ -10,8 +10,12 @@ Customises the core email self-registration form (`login/signup.php`) of Alborha
 - hides the username field: the username is always the lower-cased e-mail address (same rule as the former
   `auth_flex`), set server-side in the `post_signup_requests` callback; a posted username is ignored;
 - reports "account already exists" under the e-mail field, since the username field is hidden;
+- adds a country picker ([intl-tel-input](https://github.com/jackocnr/intl-tel-input), `thirdparty/`) to every
+  editable `phone1` field (signup, profile editing, admin user editing, enrol_apply);
+- on theme_remui profile pages, the "edit" pencil opens the core profile editing page (RemUI's inline editor writes
+  the profile with a raw database update and rejects international numbers);
 - refuses the anonymous `auth_email_signup_user` web service, which would bypass all of the above
-  (self-registration happens on the website only).
+  (self-registration happens on the website only), and RemUI's inline profile save service.
 
 Implemented through the supported `local_<plugin>_extend_signup_form()`, `local_<plugin>_validate_extend_signup_form()`,
 `local_<plugin>_post_signup_requests()` and `local_<plugin>_override_webservice_execution()` callbacks (`lib.php`);
@@ -25,6 +29,8 @@ Moodle 5.1 or later.
 
 - Source: <https://github.com/wabualela/moodle-local_alborhansignup>. The plugin directory of the site is a deploy target
   only; commit here, never in the Moodle core repository.
+- JavaScript: `amd/src` is built into `amd/build` with `npx grunt amd` from a Moodle 5.2 checkout (Node 22) where the
+  plugin is a real directory under `public/local/alborhansignup`; commit both.
 - CI: GitHub Actions with [moodle-plugin-ci](https://github.com/moodlehq/moodle-plugin-ci) (code style, PHPDoc,
   PHPUnit, Behat) on every push.
 - Never run PHPUnit or Behat against a production site: they need their own database and dataroot.

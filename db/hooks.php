@@ -29,4 +29,8 @@ $callbacks = [
         'hook' => \core_user\hook\before_user_updated::class,
         'callback' => [\local_alborhansignup\hook_callbacks::class, 'before_user_updated'],
     ],
+    [
+        'hook' => \core\hook\output\before_http_headers::class,
+        'callback' => [\local_alborhansignup\hook_callbacks::class, 'before_http_headers'],
+    ],
 ];

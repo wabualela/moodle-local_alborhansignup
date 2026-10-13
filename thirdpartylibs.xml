@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>thirdparty/intl-tel-input</location>
+    <name>intl-tel-input</name>
+    <description>Country picker and validation for international telephone numbers. The bundle (intlTelInputWithUtils) embeds libphonenumber and Closure Library code, licensed under Apache-2.0.</description>
+    <version>29.5.4</version>
+    <license>MIT</license>
+    <repository>https://github.com/jackocnr/intl-tel-input</repository>
+    <copyrights>
+      <copyright>2014-2016 Jack O'Connor</copyright>
+      <copyright>2010 The Libphonenumber Authors</copyright>
+    </copyrights>
+  </library>
+</libraries>

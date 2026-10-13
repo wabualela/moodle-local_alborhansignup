@@ -38,6 +38,14 @@ final class webservice_guard_test extends \advanced_testcase {
     }
 
     /**
+     * The theme_remui inline profile editor service is blocked too.
+     */
+    public function test_check_blocks_remui_profile_save(): void {
+        $this->expectException(\moodle_exception::class);
+        webservice_guard::check('theme_remui_save_user_profile_settings');
+    }
+
+    /**
      * Other functions are left alone.
      */
     public function test_check_allows_other_functions(): void {

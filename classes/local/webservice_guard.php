@@ -21,9 +21,10 @@ use moodle_exception;
 /**
  * Refuses web service functions that would bypass the customised signup form.
  *
- * auth_email_signup_user is declared ajax + loginrequired=false, so anyone can call it anonymously through
- * lib/ajax/service-nologin.php. It runs none of the signup form callbacks: the caller could pick any
- * username and skip every field the form enforces. Self-registration stays available on login/signup.php.
+ * - auth_email_signup_user is declared ajax + loginrequired=false, so anyone can call it anonymously through
+ *   lib/ajax/service-nologin.php. It runs none of the signup form callbacks: the caller could pick any
+ *   username and skip every field the form enforces. Self-registration stays available on login/signup.php.
+ * - theme_remui_save_user_profile_settings saves the RemUI inline profile editor with a raw database update.
  *
  * @package    local_alborhansignup
  * @copyright  2026 Alborhan Academy
@@ -33,6 +34,9 @@ final class webservice_guard {
     /** @var string[] Web service functions that must not be executed. */
     public const BLOCKED_FUNCTIONS = [
         'auth_email_signup_user',
+        // The theme_remui inline profile editor writes the profile (phone1 included) with a raw database update,
+        // bypassing validation, hooks and events; profiles are edited on user/edit.php instead.
+        'theme_remui_save_user_profile_settings',
     ];
 
     /**

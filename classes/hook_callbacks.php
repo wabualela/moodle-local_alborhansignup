@@ -16,7 +16,9 @@
 
 namespace local_alborhansignup;
 
+use core\hook\output\before_http_headers;
 use core_user\hook\before_user_updated;
+use local_alborhansignup\local\page_assets;
 use local_alborhansignup\local\phone;
 
 /**
@@ -48,5 +50,16 @@ final class hook_callbacks {
         if ($e164 !== null) {
             $user->phone1 = $e164;
         }
+    }
+
+    /**
+     * Add the phone country picker and the RemUI profile pencil redirect to the pages that need them.
+     *
+     * Runs before the page header (and its CSS links) is printed, on every page: keep it cheap.
+     *
+     * @param before_http_headers $hook
+     */
+    public static function before_http_headers(before_http_headers $hook): void {
+        page_assets::add_to_page($hook->renderer->get_page());
     }
 }
