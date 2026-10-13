@@ -117,12 +117,17 @@ jobs:
           set -o pipefail
           moodle-plugin-ci phpunit --fail-on-warning 2>&1 | tee "$RUNNER_TEMP/phpunit.log"
 
-      # Job logs need authentication to download; annotations are public, so publish the failure output there.
       - name: Annotate PHPUnit failures
         if: ${{ failure() && steps.phpunit.outcome == 'failure' }}
         run: |
-          tail -n 200 "$RUNNER_TEMP/phpunit.log" | sed -e 's/%/%25/g' -e 's/\r//g' | awk 'BEGIN { ORS = "%0A" } { print }' > "$RUNNER_TEMP/phpunit.annotation"
-          echo "::error title=PHPUnit output (${{ join(matrix.*, ', ') }})::$(cat "$RUNNER_TEMP/phpunit.annotation")"
+          # Job logs need authentication to download; annotations are public. Annotation messages are truncated
+          # at about 4 KB, so skip docker pull noise and publish the tail in chunks.
+          grep -v -E -e '^\s*$' -e '^[0-9a-f]{12}: ' "$RUNNER_TEMP/phpunit.log" | tail -n 150 > "$RUNNER_TEMP/phpunit.log.tail"
+          split -C 3500 -d "$RUNNER_TEMP/phpunit.log.tail" "$RUNNER_TEMP/phpunit.log.part."
+          for part in "$RUNNER_TEMP/phpunit.log.part."*; do
+            msg=$(sed -e 's/%/%25/g' -e 's/\r//g' "$part" | awk 'BEGIN { ORS = "%0A" } { print }')
+            echo "::error title=PHPUnit output (${{ join(matrix.*, ', ') }}) $(basename "$part")::$msg"
+          done
 
       - name: Behat features
         id: behat
@@ -134,9 +139,14 @@ jobs:
       - name: Annotate Behat failures
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
         run: |
-          grep -v -e '^\s*$' "$RUNNER_TEMP/behat.log" | tail -n 250 | sed -e 's/%/%25/g' -e 's/\r//g' \
-            | awk 'BEGIN { ORS = "%0A" } { print }' > "$RUNNER_TEMP/behat.annotation"
-          echo "::error title=Behat output (${{ join(matrix.*, ', ') }})::$(cat "$RUNNER_TEMP/behat.annotation")"
+          # Job logs need authentication to download; annotations are public. Annotation messages are truncated
+          # at about 4 KB, so skip docker pull noise and publish the tail in chunks.
+          grep -v -E -e '^\s*$' -e '^[0-9a-f]{12}: ' "$RUNNER_TEMP/behat.log" | tail -n 150 > "$RUNNER_TEMP/behat.log.tail"
+          split -C 3500 -d "$RUNNER_TEMP/behat.log.tail" "$RUNNER_TEMP/behat.log.part."
+          for part in "$RUNNER_TEMP/behat.log.part."*; do
+            msg=$(sed -e 's/%/%25/g' -e 's/\r//g' "$part" | awk 'BEGIN { ORS = "%0A" } { print }')
+            echo "::error title=Behat output (${{ join(matrix.*, ', ') }}) $(basename "$part")::$msg"
+          done
 
       - name: Upload Behat Faildump
         if: ${{ failure() && steps.behat.outcome == 'failure' }}
