@@ -65,6 +65,17 @@ final class observer_test extends \advanced_testcase {
     }
 
     /**
+     * The data generator triggers user_created too, so generated users get normalised numbers.
+     */
+    public function test_generated_user_number_is_normalised(): void {
+        $this->resetAfterTest();
+
+        $user = $this->getDataGenerator()->create_user(['phone1' => '0501234567']);
+
+        $this->assertSame('+966501234567', \core\user::get_user($user->id)->phone1);
+    }
+
+    /**
      * Invalid and empty phone numbers are left as they are.
      */
     public function test_other_values_are_kept(): void {

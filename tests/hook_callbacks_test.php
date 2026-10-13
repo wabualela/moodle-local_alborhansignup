@@ -33,6 +33,21 @@ final class hook_callbacks_test extends \advanced_testcase {
     }
 
     /**
+     * Create a user whose phone1 holds a value stored before this plugin normalised numbers.
+     *
+     * The generator triggers user_created, which normalises phone1, so the legacy value is written directly.
+     *
+     * @param string $phone legacy phone1 value
+     * @return \stdClass user record
+     */
+    private function create_user_with_legacy_phone(string $phone): \stdClass {
+        global $DB;
+        $user = $this->getDataGenerator()->create_user();
+        $DB->set_field('user', 'phone1', $phone, ['id' => $user->id]);
+        return $user;
+    }
+
+    /**
      * A changed, valid phone number is stored in E.164.
      */
     public function test_changed_number_is_normalised(): void {
@@ -64,7 +79,7 @@ final class hook_callbacks_test extends \advanced_testcase {
     public function test_other_values_are_kept(): void {
         global $DB;
         $this->resetAfterTest();
-        $user = $this->getDataGenerator()->create_user(['phone1' => '0501234567']);
+        $user = $this->create_user_with_legacy_phone('0501234567');
 
         // Saving the profile without touching the phone keeps the legacy value.
         user_update_user((object) ['id' => $user->id, 'phone1' => '0501234567', 'city' => 'Jeddah'], false, false);
@@ -83,7 +98,7 @@ final class hook_callbacks_test extends \advanced_testcase {
     public function test_update_without_phone(): void {
         global $DB;
         $this->resetAfterTest();
-        $user = $this->getDataGenerator()->create_user(['phone1' => '0501234567']);
+        $user = $this->create_user_with_legacy_phone('0501234567');
 
         user_update_user((object) ['id' => $user->id, 'city' => 'Jeddah'], false, false);
 
