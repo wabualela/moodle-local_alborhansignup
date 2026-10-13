@@ -17,8 +17,8 @@
 /**
  * Callback implementations for local_alborhansignup.
  *
- * Core calls these legacy callbacks by name from login/signup.php; the logic lives in
- * {@see \local_alborhansignup\local\form_customiser}.
+ * Core calls these legacy callbacks by name (login/signup.php and the web service layer); the logic lives in
+ * {@see \local_alborhansignup\local\form_customiser} and {@see \local_alborhansignup\local\webservice_guard}.
  *
  * @package    local_alborhansignup
  * @copyright  2026 Alborhan Academy
@@ -26,6 +26,7 @@
  */
 
 use local_alborhansignup\local\form_customiser;
+use local_alborhansignup\local\webservice_guard;
 
 /**
  * Extend the signup form (core_login_extend_signup_form()).
@@ -55,4 +56,18 @@ function local_alborhansignup_post_signup_requests($user): void {
     if ($user instanceof stdClass) {
         form_customiser::post_signup($user);
     }
+}
+
+/**
+ * Web service override (external_api::call_external_function() and webservice_base_server::execute()).
+ *
+ * Never replaces a function; throws for the functions blocked by webservice_guard.
+ *
+ * @param stdClass $externalfunctioninfo the function being called
+ * @param array $params validated parameters
+ * @return bool always false, so core runs the real function
+ */
+function local_alborhansignup_override_webservice_execution($externalfunctioninfo, $params): bool {
+    webservice_guard::check((string) ($externalfunctioninfo->name ?? ''));
+    return false;
 }

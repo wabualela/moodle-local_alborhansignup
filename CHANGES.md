@@ -4,6 +4,13 @@ All notable changes to local_alborhansignup.
 
 ## [Unreleased]
 
+## [1.2.3] - 2026-10-13 (2026101301)
+### Security
+- Block the `auth_email_signup_user` web service. It is callable anonymously through `lib/ajax/service-nologin.php`
+  and bypasses the signup form callbacks, so a caller could register any username (or reserve someone else's e-mail
+  address as a username). Self-registration remains available on `login/signup.php`. Implemented with the core
+  `override_webservice_execution` callback (`\local_alborhansignup\local\webservice_guard`).
+
 ## [1.2.2] - 2026-10-13 (2026101300)
 ### Security
 - A crafted POST could choose any username through the hidden username field. The field is now a form constant and

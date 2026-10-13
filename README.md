@@ -7,10 +7,13 @@ Customises the core email self-registration form (`login/signup.php`) of Alborha
   (`classes/local/form_customiser.php`): names, certificate name, e-mail, password, gender, city, country;
 - hides the username field: the username is always the lower-cased e-mail address (same rule as the former
   `auth_flex`), set server-side in the `post_signup_requests` callback; a posted username is ignored;
-- reports "account already exists" under the e-mail field, since the username field is hidden.
+- reports "account already exists" under the e-mail field, since the username field is hidden;
+- refuses the anonymous `auth_email_signup_user` web service, which would bypass all of the above
+  (self-registration happens on the website only).
 
-Implemented through the supported `local_<plugin>_extend_signup_form()`, `local_<plugin>_validate_extend_signup_form()`
-and `local_<plugin>_post_signup_requests()` callbacks (`lib.php`); no core or theme files are modified.
+Implemented through the supported `local_<plugin>_extend_signup_form()`, `local_<plugin>_validate_extend_signup_form()`,
+`local_<plugin>_post_signup_requests()` and `local_<plugin>_override_webservice_execution()` callbacks (`lib.php`);
+no core or theme files are modified.
 
 ## Requirements
 

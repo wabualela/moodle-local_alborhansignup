@@ -25,8 +25,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_alborhansignup';
-$plugin->version   = 2026101300;
+$plugin->version   = 2026101301;
 $plugin->requires  = 2025100600; // Moodle 5.1+.
 $plugin->supported = [501, 502];
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.2.2';
+$plugin->release   = '1.2.3';
