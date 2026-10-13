@@ -4,7 +4,7 @@ All notable changes to local_alborhansignup.
 
 ## [Unreleased]
 
-## [1.3.0] - unreleased (2026101302)
+## [1.3.0] - 2026-10-13 (2026101302)
 ### Added
 - Required mobile phone field on the signup form, stored in the core user field `phone1` (no custom profile field).
   Validated server-side with the libphonenumber library shipped with core (mobile numbers only; Arabic-Indic digits
