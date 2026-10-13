@@ -225,6 +225,21 @@ const onSubmit = (event) => {
 };
 
 /**
+ * Turn a leading "00" (also in Arabic-Indic or Persian digits) into "+": the library only recognises the country of a
+ * number typed with "+", so "00971..." would otherwise keep the previously selected flag.
+ *
+ * @param {HTMLInputElement} input
+ */
+const normaliseInternationalPrefix = (input) => {
+    const match = input.value.match(/^\s*(00|\u0660\u0660|\u06F0\u06F0)/);
+    if (match) {
+        input.value = '+' + input.value.slice(match[0].length);
+        // Let the library read the new value (and select the country).
+        input.dispatchEvent(new Event('input', {bubbles: true}));
+    }
+};
+
+/**
  * Attach the picker to one input.
  *
  * @param {Function} intlTelInput
@@ -262,6 +277,7 @@ const attach = (intlTelInput, input, config) => {
         instance.edited = true;
     };
     input.addEventListener('input', markEdited);
+    input.addEventListener('input', () => normaliseInternationalPrefix(input));
     input.addEventListener('countrychange', markEdited);
     input.addEventListener('blur', (event) => validateOnLeave(input, event));
 };
