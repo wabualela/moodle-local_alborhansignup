@@ -13,6 +13,8 @@ All notable changes to local_alborhansignup.
   admin edit). Unchanged legacy values are left alone.
 - `user_created` observer: `phone1` of accounts created outside the signup form (admin, CSV upload, web services) is
   stored in E.164.
+- Numbers without a country code that are valid both in the selected country and in Saudi Arabia are rejected as
+  ambiguous; numbers with an extension are kept as typed.
 
 ## [1.2.3] - 2026-10-13 (2026101301)
 ### Security

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Privacy provider for local_alborhansignup (stores no personal data).
+ * Privacy provider for local_alborhansignup.
  *
  * @package    local_alborhansignup
  * @copyright  2026 Alborhan Academy
@@ -25,7 +25,7 @@
 namespace local_alborhansignup\privacy;
 
 /**
- * The plugin only rearranges form elements and stores nothing.
+ * The plugin stores no personal data itself; the phone number it collects is stored by core in the user profile.
  */
 class provider implements \core_privacy\local\metadata\null_provider {
     /**

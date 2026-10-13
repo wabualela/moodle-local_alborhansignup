@@ -60,6 +60,18 @@ final class phone_test extends \advanced_testcase {
             'national number with country hint' => ['01001234567', 'EG', '+201001234567', true],
             'unknown country hint falls back to SA' => ['0501234567', 'XX', '+966501234567', true],
             'fixed line or mobile (North America)' => ['+1 650 253 0000', null, '+16502530000', true],
+            'full-width digits' => ["\u{FF10}\u{FF15}\u{FF10}\u{FF11}\u{FF12}\u{FF13}\u{FF14}\u{FF15}\u{FF16}\u{FF17}", null,
+                '+966501234567', true],
+            'full-width plus' => ["\u{FF0B}966501234567", null, '+966501234567', true],
+            // The library throws RuntimeException on these unless the plus sign is normalised first.
+            'full-width plus, national number' => ["\u{FF0B}0501234567", null, null, false],
+            'full-width plus, Arabic-Indic digits' => ["\u{FF0B}\u{0660}\u{0665}\u{0660}\u{0661}\u{0662}\u{0663}\u{0664}"
+                . "\u{0665}\u{0666}\u{0667}", null, null, false],
+            'ambiguous: valid in the hint country and in SA' => ['0501234567', 'AE', null, false],
+            'ambiguous: landline in the hint country, mobile in SA' => ['0501234567', 'EG', null, false],
+            'international number with a non-SA hint' => ['+971501234567', 'AE', '+971501234567', true],
+            'national number only valid in the hint country' => ['0931234567', 'SY', '+963931234567', true],
+            'extension' => ['+966 11 234 5678 ext. 89', null, null, false],
             'too short' => ['12345', null, null, false],
             'too long' => ['+96650123456789', null, null, false],
             'not a number' => ['abc', null, null, false],

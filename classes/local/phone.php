@@ -36,16 +36,17 @@ final class phone {
     public const DEFAULT_REGION = 'SA';
 
     /**
-     * Replace Arabic-Indic and Persian digits with ASCII digits.
+     * Replace Arabic-Indic, Persian and full-width digits, and the full-width plus sign, with ASCII.
      *
      * @param string $raw
      * @return string
      */
     public static function normalise_digits(string $raw): string {
-        $map = [];
+        $map = [\core_text::code2utf8(0xFF0B) => '+'];
         for ($i = 0; $i <= 9; $i++) {
             $map[\core_text::code2utf8(0x0660 + $i)] = (string) $i;
             $map[\core_text::code2utf8(0x06F0 + $i)] = (string) $i;
+            $map[\core_text::code2utf8(0xFF10 + $i)] = (string) $i;
         }
         return strtr($raw, $map);
     }
@@ -67,19 +68,45 @@ final class phone {
     /**
      * Parse a typed number into a valid phone number.
      *
+     * A number without an international prefix is read in the region of $country. When that region is not the
+     * default one and the same digits are also a valid number in the default region (e.g. "0501234567" is a mobile
+     * number both in Saudi Arabia and in the United Arab Emirates), the number is ambiguous and rejected: the user
+     * must type the country code.
+     *
      * @param string $raw number as typed, e.g. "+966 50 123 4567", "0501234567" or "٠٥٠١٢٣٤٥٦٧"
      * @param string|null $country Moodle country code used for numbers without an international prefix
-     * @return PhoneNumber|null null when the number cannot be parsed or is not a valid number
+     * @return PhoneNumber|null null when the number cannot be parsed, is not valid, is ambiguous or has an extension
      */
     public static function parse(string $raw, ?string $country = null): ?PhoneNumber {
         $raw = trim(self::normalise_digits($raw));
         if ($raw === '') {
             return null;
         }
+        $region = self::region($country);
+        $number = self::parse_in_region($raw, $region);
+        if ($number === null || $number->hasExtension()) {
+            return null;
+        }
+        $international = str_starts_with($raw, '+') || str_starts_with($raw, '00');
+        if (!$international && $region !== self::DEFAULT_REGION && self::parse_in_region($raw, self::DEFAULT_REGION)) {
+            return null;
+        }
+        return $number;
+    }
+
+    /**
+     * Parse in the given region; null unless the result is a valid number.
+     *
+     * @param string $raw number with ASCII digits
+     * @param string $region libphonenumber region code
+     * @return PhoneNumber|null
+     */
+    private static function parse_in_region(string $raw, string $region): ?PhoneNumber {
         $util = self::util();
         try {
-            $number = $util->parse($raw, self::region($country));
-        } catch (NumberParseException $e) {
+            $number = $util->parse($raw, $region);
+        } catch (NumberParseException | \RuntimeException $e) {
+            // The library also throws RuntimeException on some unusual Unicode input.
             return null;
         }
         return $util->isValidNumber($number) ? $number : null;
